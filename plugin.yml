@@ -1,0 +1,8 @@
+name: ZenithCore
+main: com.yukiemeralis.blogspot.zenithcore.ZenithCore
+prefix: z
+version: 1.0
+api-version: 1.16
+author: Yuki_emeralis
+website: www.yukiemeralis.blogspot.com
+commands:

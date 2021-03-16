@@ -1,0 +1,19 @@
+(This is just so I can keep my throught in order)
+
+Goal:
+Create an instance of ZenithNPC, with a name and profile.
+Calling ZenithNPC#spawn() will spawn the NPC into the world.
+Calling ZenithNPC#setTarget____() will change the NPC's pathfinding to prioritize a certain behaviour
+
+A ZenithNPC will have two associated entities: 
+- An EntityPlayer instance that can be seen by players,
+- An EntityZombie that performs pathfinding and most real-world actions.
+
+ZenithNPCs can have the following behaviours:
+- Stand still
+- Look at player
+- Float
+- Move to location
+- Move to entity, attack entity
+
+NPCs cannot have duplicate names, but if two NPCs share the same name, one will be renamed and aliased.
