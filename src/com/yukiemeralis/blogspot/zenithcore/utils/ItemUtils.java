@@ -36,6 +36,11 @@ public class ItemUtils
         target.addUnsafeEnchantment(enchant, level);
     }
 
+    public static void removeEnchantment(ItemStack target, Enchantment enchant)
+    {
+        target.removeEnchantment(enchant);
+    }
+
     public static Enchantment enchantFromName(String name)
     {
         return Enchantment.getByKey(NamespacedKey.minecraft(name));

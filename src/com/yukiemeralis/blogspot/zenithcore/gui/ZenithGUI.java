@@ -25,7 +25,7 @@ public abstract class ZenithGUI implements Listener
     {
         if (slotcount % 9 != 0)
         {
-            PrintUtils.sendMessage("WARN: Inventory \"" + name + "\" has an irregular slot count! Consider changing this.");
+            PrintUtils.sendMessage("WARN: Inventory \"" + name + "\" has an irregular slot count! Consider changing this. (" + slotcount + " -> " + (slotcount - (slotcount % 9)) + " slots)");
             slotcount -= (slotcount % 9);
         }
 
@@ -48,9 +48,15 @@ public abstract class ZenithGUI implements Listener
             inv.setItem(i, item.clone());
     }
 
+    /**
+     * Add a button to the inventory.
+     * @param slot The inventory slot to assign this button to.
+     * @param button An instance of the button to add.
+     * @deprecated Access the hashmap directly.
+     */
     public void addButton(int slot, ZenithButton button)
     {
-        this.buttons.put(slot, button);
+        this.buttons.put(slot, button.clone());
     }
 
     public final static ItemStack blank_glass;

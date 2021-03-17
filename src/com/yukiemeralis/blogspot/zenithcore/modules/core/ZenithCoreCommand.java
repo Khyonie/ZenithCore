@@ -29,6 +29,7 @@ public class ZenithCoreCommand extends ZenithCommand
         linkCommandDescription("", "Display information about this plugin.");
         linkCommandDescription("help", "Displays a list of registered Zenith commands.");
         linkCommandDescription("enchant <enchantment | list> <level>", "Enchant held item, or display a list of enchantments.");
+        linkCommandDescription("rmenchant <enchantment>", "Remove an enchantment from a held item.");
         linkCommandDescription("recolor <name>", "Apply a name to held item. Supports standard colors/formatting using &.");
         linkCommandDescription("mods", "Display currently loaded modules.");
         linkCommandDescription("setlore", "Set held item's lore. Supports \\n as a newline character.");
@@ -166,6 +167,39 @@ public class ZenithCoreCommand extends ZenithCommand
 
                 ItemUtils.applyEnchantment(held_item, enchant, level);
                 PrintUtils.sendMessage(sender, "Success! Enchanted item with " + args[1] + " " + level + ".");
+                return true;
+            case "rmenchant":
+                if (!(sender instanceof Player))
+                {
+                    PrintUtils.sendMessage(sender, "ERROR: Only players can enchant items.");
+                    return true;
+                }
+
+                held_item = ((Player) sender).getInventory().getItem(EquipmentSlot.HAND);
+
+                if (args.length == 1)
+                {
+                    sender.sendMessage("ERROR: Usage: /zen enchant <enchantment> <level> OR /zen enchant list");
+                    return true;
+                }
+
+                enchant = ItemUtils.enchantFromName(args[1]);
+
+                if (enchant == null)
+                {
+                    PrintUtils.sendMessage(sender, "ERROR: Invalid enchantment. See /zen enchant list for a list of valid enchantments.");
+                    return true;
+                }
+
+                if (!held_item.containsEnchantment(enchant))
+                {
+                    // Technically not necessary, but it feels better than saying that we removed an enchantment that doesn't exist
+                    PrintUtils.sendMessage(sender, "ERROR: Cannot remove enchantment that does not exist on item.");
+                    return true;
+                }
+
+                ItemUtils.removeEnchantment(held_item, enchant);
+                PrintUtils.sendMessage(sender, "Success! Removed enchantment \"" + enchant.getKey().getKey() + "\" from item.");
                 return true;
             case "mods":
                 if (sender instanceof ConsoleCommandSender)

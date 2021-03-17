@@ -1,11 +1,12 @@
 package com.yukiemeralis.blogspot.zenithcore.modules.core;
 
+import java.util.HashMap;
+
 import com.yukiemeralis.blogspot.zenithcore.ZenithCore;
 import com.yukiemeralis.blogspot.zenithcore.ZenithModule;
 import com.yukiemeralis.blogspot.zenithcore.gui.ZenithButton;
 import com.yukiemeralis.blogspot.zenithcore.gui.ZenithGUI;
 import com.yukiemeralis.blogspot.zenithcore.utils.ItemUtils;
-import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -79,12 +80,15 @@ public class ZenithModsGUI extends ZenithGUI
                 ZenithModsGUI gui = new ZenithModsGUI();
                 gui.init();
 
-                PrintUtils.sendMessage("Button clicked.");
-
                 player.closeInventory();
                 gui.display(player);
             }
         };
+
+        @SuppressWarnings("serial")
+        HashMap<Integer, ZenithButton> buttons = new HashMap<>() {{
+            put(8, cancel.clone());
+        }};
 
         protected ZenithModInfo() {}
 
@@ -92,8 +96,6 @@ public class ZenithModsGUI extends ZenithGUI
         {
             super(9, "Detailed info: " + module.getName());
             this.module = module;
-
-            addButton(8, cancel.clone());
         }
 
         @Override
@@ -108,11 +110,7 @@ public class ZenithModsGUI extends ZenithGUI
             if (this.buttons.containsKey(event.getRawSlot()))
             {
                 this.buttons.get(event.getRawSlot()).onClick((Player) event.getWhoClicked(), event.getRawSlot(), event.getAction(), event);
-                PrintUtils.sendMessage("Button found in slot " + event.getRawSlot());
-            } else {
-                System.out.println("Click from " + event.getRawSlot());
-            }
-                
+            }  
         }
 
         @Override
@@ -125,9 +123,9 @@ public class ZenithModsGUI extends ZenithGUI
             });
 
             inv.setItem(0, module.getIcon());
-            inv.setItem(1, getAuthor());
-            inv.setItem(2, getSinceVersion());
-            inv.setItem(3, getModuleFamily());
+            inv.setItem(3, getAuthor());
+            inv.setItem(4, getSinceVersion());
+            inv.setItem(5, getModuleFamily());
         }
 
         private ItemStack getAuthor()
