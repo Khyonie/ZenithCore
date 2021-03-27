@@ -11,7 +11,7 @@ public class NpcModule extends ZenithModule
 {
     public NpcModule() 
     {
-        super("NPCs", "1.0", 1, "NPC management module.", Material.PLAYER_HEAD);
+        super("NPCs", "1.0", 3, "NPC management module.", Material.PLAYER_HEAD);
 
         setDetails("Yuki_emeralis (Hailey)", "22321-0.0.3a", "ZenithCore");
 

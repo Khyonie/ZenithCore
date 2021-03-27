@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 import com.yukiemeralis.blogspot.zenithcore.command.ZenithCommand;
+import com.yukiemeralis.blogspot.zenithcore.utils.InfoType;
 import com.yukiemeralis.blogspot.zenithcore.utils.ItemUtils;
+import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
 
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
@@ -189,6 +191,8 @@ public abstract class ZenithModule
         @Override
         public int compare(ZenithModule mod1, ZenithModule mod2) 
         {
+            if (mod2.getPriority() == mod1.getPriority())
+                PrintUtils.sendMessage("Modules " + mod1.getName() + " and " + mod2.getName() + " have the same priority! (" + mod2.getPriority() + ") Consider changing this.", InfoType.WARN);
             return ((Integer) mod2.getPriority()).compareTo(mod1.getPriority());
         }
     }

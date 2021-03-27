@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.yukiemeralis.blogspot.zenithcore.command.CommandManager;
 import com.yukiemeralis.blogspot.zenithcore.command.ZenithCommand;
+import com.yukiemeralis.blogspot.zenithcore.utils.InfoType;
 import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
 import com.yukiemeralis.blogspot.zenithcore.utils.VersionCtrl;
 import com.yukiemeralis.blogspot.zenithcore.utils.http.ProfileManager;
@@ -23,35 +24,57 @@ public class ZenithCore extends JavaPlugin
     private static ArrayList<ZenithModule> modules = new ArrayList<>();
     private static ArrayList<ZenithExternalModule> externalModules = new ArrayList<>();
 
-    public static ArrayList<ZenithModule> moduleQueue = new ArrayList<>();
-
     private static ProfileManager profileManager;
+    private static ZenithOptions zenithOptions;
 
-    private static long time;
+    private static long time; // Track loading times
 
     @Override
     public void onEnable()
     {
-        PrintUtils.sendMessage("");
-        PrintUtils.sendMessage("---------------===<[ ZenithCore ]>===---------------");
-
         INSTANCE = this;
+
+        PrintUtils.sendMessage("");
+        PrintUtils.sendMessage("§e---------------§6===§c<[ §dZenithCore §c]>§6===§e---------------");
+        
         time = System.currentTimeMillis();
 
         // Initialize zenithcore folder
         JsonUtils.init();
 
-        PrintUtils.sendMessage("Pre-loading ZenithCore " + VersionCtrl.getVersion());
+        PrintUtils.sendMessage("Pre-loading ZenithCore " + VersionCtrl.getVersion(), InfoType.INFO);
 
         // Load profiles from cache
         if (!(new File(JsonUtils.basepath + "skinprofiles.json").exists()))
         {
             JsonUtils.toJsonFile(JsonUtils.basepath + "skinprofiles.json", new ProfileManager());
         }
-        profileManager = (ProfileManager) JsonUtils.fromJsonFile(JsonUtils.basepath + "skinprofiles.json", ProfileManager.class);
-        PrintUtils.sendMessage("Loaded " + profileManager.getAllProfiles().size() + " profiles from cache!");
 
-        PrintUtils.sendMessage("Finished preloading...");
+        profileManager = (ProfileManager) JsonUtils.fromJsonFile(JsonUtils.basepath + "skinprofiles.json", ProfileManager.class);
+
+        try {
+            PrintUtils.sendMessage("Loaded (" + profileManager.getAllProfiles().size() + ") profile(s) from cache!", InfoType.INFO);
+        } catch (NullPointerException error) {
+            PrintUtils.sendMessage("ERROR: User profile cache is corrupt! Continuing with a fresh instance...", InfoType.ERROR);
+            profileManager = new ProfileManager();
+        }
+
+        // Load options from file
+        if (!(new File(JsonUtils.basepath + "ZenithOptions.json").exists()))
+        {
+            JsonUtils.toJsonFile(JsonUtils.basepath + "ZenithOptions.json", new ZenithOptions());
+        }
+        
+        zenithOptions = (ZenithOptions) JsonUtils.fromJsonFile(JsonUtils.basepath + "ZenithOptions.json", ZenithOptions.class);
+
+        if (zenithOptions == null)
+        {
+            PrintUtils.sendMessage("ERROR: Settings file is corrupt! Continuing with a fresh instance...");
+            zenithOptions = new ZenithOptions();
+        }
+
+        // Finalize preloading
+        PrintUtils.sendMessage("Finished preloading...", InfoType.INFO);
 
         triggerPostLoadThread();
     }
@@ -91,12 +114,12 @@ public class ZenithCore extends JavaPlugin
 
     private static void postLoad()
     {
-        PrintUtils.sendMessage("Beginning postload...");
-        PrintUtils.sendMessage("Loading an expected " + (expectedModules + 1) + " parent module(s)...");
+        PrintUtils.sendMessage("Beginning postload...", InfoType.INFO);
+        PrintUtils.sendMessage("Loading an expected (" + (expectedModules + 1) + ") parent module(s)...", InfoType.INFO);
 
         externalModules.forEach(mod -> {
             mod.setInstance(INSTANCE);
-            PrintUtils.sendMessage("Loaded parent module: \"" + mod.getModuleFamilyName() + "\".");
+            PrintUtils.sendMessage("Loaded parent module: \"" + mod.getModuleFamilyName() + "\".", InfoType.INFO);
         });
 
         // Load core modules into memory
@@ -124,9 +147,9 @@ public class ZenithCore extends JavaPlugin
             getInstance().getServer().getPluginManager().registerEvents(event, getInstance());
         });
 
-        PrintUtils.sendMessage("Finished postload! Time elapsed: " + (System.currentTimeMillis() - time) + " ms.");
-        PrintUtils.sendMessage("[Loaded " + (externalModules.size() + 1) + " parent module(s) | Loaded " + modules.size() + " child module(s)]");
-        PrintUtils.sendMessage("---------------===<[ ZenithCore ]>===---------------");
+        PrintUtils.sendMessage("Finished postload! Time elapsed: " + (System.currentTimeMillis() - time) + " ms.", InfoType.INFO);
+        PrintUtils.sendMessage("[Loaded " + (externalModules.size() + 1) + " parent module(s) | Loaded " + modules.size() + " child module(s)]", InfoType.INFO);
+        PrintUtils.sendMessage("§e---------------§6===§c<[ §dZenithCore §c]>§6===§e---------------");
     }
 
     @Override
@@ -138,6 +161,9 @@ public class ZenithCore extends JavaPlugin
 
         // Save cached profiles
         JsonUtils.toJsonFile(JsonUtils.basepath + "skinprofiles.json", profileManager);
+
+        // Save settings
+        JsonUtils.toJsonFile(JsonUtils.basepath + "ZenithOptions.json", zenithOptions);
     }
 
     public static ZenithCore getInstance()
@@ -180,6 +206,11 @@ public class ZenithCore extends JavaPlugin
     {
         commands.addAll(module.getCommands());
         events.addAll(module.getListeners());
+    }
+
+    public static ZenithOptions getSettings()
+    {
+        return zenithOptions;
     }
 
     public static void registerModule(ZenithModule module)

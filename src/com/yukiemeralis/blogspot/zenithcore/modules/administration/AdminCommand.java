@@ -329,12 +329,16 @@ public class AdminCommand extends ZenithCommand
 
     private void cmd_invedit(Player sender, Player target)
     {
-        // TODO This
+        InventoryEditGUI gui = new InventoryEditGUI(target, false);
+        gui.init();
+        gui.display(sender);
     }
 
     private void cmd_ecedit(Player sender, Player target)
     {
-        // TODO This
+        InventoryEditGUI gui = new InventoryEditGUI(target, true);
+        gui.init();
+        gui.display(sender);
     }
 
     private void cmd_tpspawn(CommandSender sender, Player target)

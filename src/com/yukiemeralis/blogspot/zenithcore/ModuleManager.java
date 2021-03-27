@@ -7,12 +7,16 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.yukiemeralis.blogspot.zenithcore.utils.InfoType;
 import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
 import com.yukiemeralis.blogspot.zenithcore.utils.VersionCtrl;
 import com.yukiemeralis.blogspot.zenithcore.utils.persistence.DataUtils;
 
 public class ModuleManager 
 {
+    /**
+     * Gather modules from com.yukiemeralis.blogspot.zenithcore.modules.
+     */
     static List<ZenithModule> gatherModules()
     {
         List<ZenithModule> modules = new ArrayList<>();
@@ -46,7 +50,7 @@ public class ModuleManager
             e.printStackTrace();
         }
 
-        PrintUtils.sendMessage("Gathered " + modules.size() + " module(s) of family \"Core\"!");
+        PrintUtils.sendMessage("Gathered " + modules.size() + " module(s) of family \"Core\"!", InfoType.INFO);
         return modules;
     }
 
@@ -91,7 +95,7 @@ public class ModuleManager
             e.printStackTrace();
         }
 
-        PrintUtils.sendMessage("Gathered " + modules.size() + " module(s) of family \"" + extmodule.getModuleFamilyName() + "\"!");
+        PrintUtils.sendMessage("Gathered " + modules.size() + " module(s) of family \"" + extmodule.getModuleFamilyName() + "\"!", InfoType.INFO);
         return modules;
     }
 

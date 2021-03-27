@@ -1,5 +1,9 @@
 package com.yukiemeralis.blogspot.zenithcore.utils;
 
+import java.util.HashMap;
+
+import com.yukiemeralis.blogspot.zenithcore.ZenithCore;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -11,21 +15,24 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class PrintUtils 
 {
+    @SuppressWarnings("serial")
+    private static final HashMap<InfoType, String> info_colors = new HashMap<>() {{
+        put(InfoType.INFO, "§e");
+        put(InfoType.WARN, "§6");
+        put(InfoType.ERROR, "§c");
+        put(InfoType.FATAL, "§4");
+    }};
+
     public static void sendMessage(Entity target, String message)
     {
         target.sendMessage("§8[§dz§8] §7" + message);
-    }
-
-    public static void sendMessage(ConsoleCommandSender target, String message)
-    {
-        System.out.println("[z] " + message);
     }
 
     public static void sendMessage(CommandSender target, String message)
     {
         if (target instanceof ConsoleCommandSender)
         {
-            sendMessage((ConsoleCommandSender) target, message);
+            sendMessage(message);
             return;
         }
 
@@ -34,7 +41,12 @@ public class PrintUtils
 
     public static void sendMessage(String message)
     {
-        System.out.println("[z] " + message);
+        ZenithCore.getInstance().getServer().getConsoleSender().sendMessage("§8[§dz§8] §7" + message);
+    }
+
+    public static void sendMessage(String message, InfoType type)
+    {
+        ZenithCore.getInstance().getServer().getConsoleSender().sendMessage("§8[§dz§8] " + info_colors.get(type) + message);
     }
 
     public static String concatStringArray(String[] input, int offset)
