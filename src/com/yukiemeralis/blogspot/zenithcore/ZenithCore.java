@@ -1,11 +1,14 @@
 package com.yukiemeralis.blogspot.zenithcore;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.yukiemeralis.blogspot.zenithcore.command.CommandManager;
 import com.yukiemeralis.blogspot.zenithcore.command.ZenithCommand;
 import com.yukiemeralis.blogspot.zenithcore.utils.InfoType;
+import com.yukiemeralis.blogspot.zenithcore.utils.ModuleClassLoader;
 import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
 import com.yukiemeralis.blogspot.zenithcore.utils.VersionCtrl;
 import com.yukiemeralis.blogspot.zenithcore.utils.http.ProfileManager;
@@ -73,10 +76,47 @@ public class ZenithCore extends JavaPlugin
             zenithOptions = new ZenithOptions();
         }
 
+        //
+        // Module management
+        //
+
+        if (!(new File(JsonUtils.basepath + "mods/").exists()))
+        {
+            new File(JsonUtils.basepath + "mods/").mkdir();
+        }
+
+        // Gather modules
+        // Internal
+        modules.addAll(ModuleManager.gatherModules());
+
+        // External
+        try {
+            loadModulesFromFile();
+        } catch (IOException e) { e.printStackTrace(); }
+
+        // And load it
+        modules.sort(new ZenithModule.Sorter().reversed());
+
+        for (ZenithModule module : modules)
+        {
+            commands.addAll(module.getCommands());
+            events.addAll(module.getListeners());
+
+            module.onEnable();
+        }
+
+        commands.forEach(command -> {
+            CommandManager.registerCommand(command.getName(), command);
+        });
+
+        events.forEach(event -> {
+            getInstance().getServer().getPluginManager().registerEvents(event, getInstance());
+        });
+
         // Finalize preloading
         PrintUtils.sendMessage("Finished preloading...", InfoType.INFO);
 
-        triggerPostLoadThread();
+        //triggerPostLoadThread();
     }
 
     static int expectedModules = 0;
@@ -164,6 +204,38 @@ public class ZenithCore extends JavaPlugin
 
         // Save settings
         JsonUtils.toJsonFile(JsonUtils.basepath + "ZenithOptions.json", zenithOptions);
+    }
+
+    private List<ZenithModule> loadModulesFromFile() throws IOException
+    {
+        File path = new File(JsonUtils.basepath + "mods/");
+        List<ZenithModule> buffer = new ArrayList<>();
+
+        for (File f : path.listFiles())
+        {
+            if (f.getName().endsWith(".jar"))
+            {
+                /**
+                // Attempt to pull modinfo from file
+                JarFile jar = new JarFile(f.getAbsolutePath());
+                Scanner scanner = new Scanner(jar.getInputStream(jar.getEntry("modinfo")));
+
+                String classpath = scanner.nextLine();
+
+                scanner.close();
+                */
+
+                ModuleClassLoader.loadFromJar(f).forEach(class_ -> {
+                    if (class_ instanceof ZenithModule)
+                    {   
+                        PrintUtils.sendMessage("Found external zenith module: " + class_.getClass().getName());
+                    }
+                });
+            }
+
+        }
+
+        return buffer;
     }
 
     public static ZenithCore getInstance()

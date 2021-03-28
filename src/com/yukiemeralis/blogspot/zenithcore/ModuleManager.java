@@ -60,6 +60,7 @@ public class ModuleManager
      * @param extmodule
      * @param jarFileLocation
      * @param expectedPackage
+     * @deprecated
      * @return
      */
     public static List<ZenithModule> gatherModulesFromLocation(ZenithExternalModule extmodule, String jarFileLocation, String expectedPackage)
