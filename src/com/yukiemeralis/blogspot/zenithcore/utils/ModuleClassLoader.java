@@ -13,7 +13,7 @@ import java.util.jar.JarFile;
 
 public class ModuleClassLoader
 {
-    public static List<Object> loadFromJar(File file)
+    public static List<Object> loadFromJar(File file, ClassLoader parent)
     {
         List<Object> classes = new ArrayList<>();
 
@@ -22,9 +22,7 @@ public class ModuleClassLoader
             Enumeration<JarEntry> entries = jarFile.entries();
 
             URL[] urls = {new URL("jar:file:" + file.getAbsolutePath() + "!/")};
-            URLClassLoader loader = URLClassLoader.newInstance(urls);
-
-            PrintUtils.sendMessage("Parent classloader: " + loader.getParent().getName());
+            URLClassLoader loader = URLClassLoader.newInstance(urls, parent);
 
             JarEntry entry;
             while (entries.hasMoreElements())

@@ -103,14 +103,14 @@ public class SecurityCommand extends ZenithCommand
                 }
 
                 try {
-                    AccountType.valueOf(args[1]);
+                    AccountType.valueOf(args[1].toUpperCase());
                 } catch (IllegalArgumentException e) {
                     PrintUtils.sendMessage(sender, "ERROR: Invalid account type! Acceptable values are: USER, ADMIN, SUPERADMIN.");
                     PrintUtils.sendMessage(sender, "Note - new admin and superadmin accounts must be approved by an admin or superadmin. ");
                     return true;
                 }
 
-                account = new SecurePlayerAccount(args[2], args[3], AccountType.valueOf(args[1]));
+                account = new SecurePlayerAccount(args[2], args[3], AccountType.valueOf(args[1].toUpperCase()));
 
                 if (AccountType.valueOf(args[1]).equals(AccountType.ADMIN) || AccountType.valueOf(args[1]).equals(AccountType.SUPERADMIN))
                 {
@@ -148,7 +148,7 @@ public class SecurityCommand extends ZenithCommand
                             PrintUtils.sendMessage(
                                 sender, 
                                 "Request from: " + req.getPlayer().getDisplayName() + 
-                                " for a(n)" + req.getAccount().getType().name() + 
+                                " for a(n) " + req.getAccount().getType().name() + 
                                 " account named \"" + req.getUsername() + "\"."
                             );
                         }

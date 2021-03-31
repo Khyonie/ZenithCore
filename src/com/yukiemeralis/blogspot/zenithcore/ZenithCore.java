@@ -16,7 +16,6 @@ import com.yukiemeralis.blogspot.zenithcore.utils.persistence.JsonUtils;
 
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class ZenithCore extends JavaPlugin
 {
@@ -36,8 +35,6 @@ public class ZenithCore extends JavaPlugin
     public void onEnable()
     {
         INSTANCE = this;
-
-        PrintUtils.sendMessage("");
         PrintUtils.sendMessage("§e---------------§6===§c<[ §dZenithCore §c]>§6===§e---------------");
         
         time = System.currentTimeMillis();
@@ -45,7 +42,7 @@ public class ZenithCore extends JavaPlugin
         // Initialize zenithcore folder
         JsonUtils.init();
 
-        PrintUtils.sendMessage("Pre-loading ZenithCore " + VersionCtrl.getVersion(), InfoType.INFO);
+        PrintUtils.sendMessage("Loading ZenithCore " + VersionCtrl.getVersion(), InfoType.INFO);
 
         // Load profiles from cache
         if (!(new File(JsonUtils.basepath + "skinprofiles.json").exists()))
@@ -56,7 +53,7 @@ public class ZenithCore extends JavaPlugin
         profileManager = (ProfileManager) JsonUtils.fromJsonFile(JsonUtils.basepath + "skinprofiles.json", ProfileManager.class);
 
         try {
-            PrintUtils.sendMessage("Loaded (" + profileManager.getAllProfiles().size() + ") profile(s) from cache!", InfoType.INFO);
+            PrintUtils.sendMessage("Loaded (" + profileManager.getAllProfiles().size() + ") profile(s) from cache.", InfoType.INFO);
         } catch (NullPointerException error) {
             PrintUtils.sendMessage("ERROR: User profile cache is corrupt! Continuing with a fresh instance...", InfoType.ERROR);
             profileManager = new ProfileManager();
@@ -72,7 +69,7 @@ public class ZenithCore extends JavaPlugin
 
         if (zenithOptions == null)
         {
-            PrintUtils.sendMessage("ERROR: Settings file is corrupt! Continuing with a fresh instance...");
+            PrintUtils.sendMessage("ERROR: Settings file is corrupt! Continuing with a fresh instance...", InfoType.ERROR);
             zenithOptions = new ZenithOptions();
         }
 
@@ -86,13 +83,17 @@ public class ZenithCore extends JavaPlugin
         }
 
         // Gather modules
+
         // Internal
         modules.addAll(ModuleManager.gatherModules());
 
         // External
+        int delta = modules.size();
         try {
-            loadModulesFromFile();
+            modules.addAll(loadModulesFromFile());
         } catch (IOException e) { e.printStackTrace(); }
+
+        PrintUtils.sendMessage("Found (" + (modules.size() - delta) + ") external modules.", InfoType.INFO);
 
         // And load it
         modules.sort(new ZenithModule.Sorter().reversed());
@@ -113,82 +114,8 @@ public class ZenithCore extends JavaPlugin
             getInstance().getServer().getPluginManager().registerEvents(event, getInstance());
         });
 
-        // Finalize preloading
-        PrintUtils.sendMessage("Finished preloading...", InfoType.INFO);
-
-        //triggerPostLoadThread();
-    }
-
-    static int expectedModules = 0;
-
-    private static void triggerPostLoadThread()
-    {
-        // Count expected modules
-        for (File f : new File("./plugins/").listFiles())
-        {
-            if (f.getName().startsWith("Zenith") && !f.getName().startsWith("ZenithCore"))
-                expectedModules++;
-        }
-
-        new BukkitRunnable()
-        {
-            @Override
-            public void run() 
-            {
-                boolean ready = true;
-
-                for (ZenithExternalModule mod : externalModules)
-                {
-                    if (!mod.isReadyForLoading())
-                        ready = false;
-                }
-
-                if (ready)
-                {
-                    cancel();
-                    postLoad();
-                }
-            }
-        }.runTaskTimer(getInstance(), 0, 1);
-    }
-
-    private static void postLoad()
-    {
-        PrintUtils.sendMessage("Beginning postload...", InfoType.INFO);
-        PrintUtils.sendMessage("Loading an expected (" + (expectedModules + 1) + ") parent module(s)...", InfoType.INFO);
-
-        externalModules.forEach(mod -> {
-            mod.setInstance(INSTANCE);
-            PrintUtils.sendMessage("Loaded parent module: \"" + mod.getModuleFamilyName() + "\".", InfoType.INFO);
-        });
-
-        // Load core modules into memory
-        ModuleManager.gatherModules().forEach(mod -> {
-            addModule(mod);
-        });
-
-        // Sort by priority
-        modules.sort(new ZenithModule.Sorter().reversed());
-
-        // And register it all
-        for (ZenithModule module : modules)
-        {
-            commands.addAll(module.getCommands());
-            events.addAll(module.getListeners());
-
-            module.onEnable();
-        }
-
-        commands.forEach(command -> {
-            CommandManager.registerCommand(command.getName(), command);
-        });
-
-        events.forEach(event -> {
-            getInstance().getServer().getPluginManager().registerEvents(event, getInstance());
-        });
-
-        PrintUtils.sendMessage("Finished postload! Time elapsed: " + (System.currentTimeMillis() - time) + " ms.", InfoType.INFO);
-        PrintUtils.sendMessage("[Loaded " + (externalModules.size() + 1) + " parent module(s) | Loaded " + modules.size() + " child module(s)]", InfoType.INFO);
+        // Finished
+        PrintUtils.sendMessage("Done! Time elapsed: " + (System.currentTimeMillis() - time) + " ms", InfoType.INFO);
         PrintUtils.sendMessage("§e---------------§6===§c<[ §dZenithCore §c]>§6===§e---------------");
     }
 
@@ -215,20 +142,10 @@ public class ZenithCore extends JavaPlugin
         {
             if (f.getName().endsWith(".jar"))
             {
-                /**
-                // Attempt to pull modinfo from file
-                JarFile jar = new JarFile(f.getAbsolutePath());
-                Scanner scanner = new Scanner(jar.getInputStream(jar.getEntry("modinfo")));
-
-                String classpath = scanner.nextLine();
-
-                scanner.close();
-                */
-
-                ModuleClassLoader.loadFromJar(f).forEach(class_ -> {
+                ModuleClassLoader.loadFromJar(f, this.getClassLoader()).forEach(class_ -> {
                     if (class_ instanceof ZenithModule)
-                    {   
-                        PrintUtils.sendMessage("Found external zenith module: " + class_.getClass().getName());
+                    {
+                        buffer.add((ZenithModule) class_);
                     }
                 });
             }

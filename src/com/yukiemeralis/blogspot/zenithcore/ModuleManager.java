@@ -50,7 +50,7 @@ public class ModuleManager
             e.printStackTrace();
         }
 
-        PrintUtils.sendMessage("Gathered " + modules.size() + " module(s) of family \"Core\"!", InfoType.INFO);
+        PrintUtils.sendMessage("Gathered " + modules.size() + " module(s) of family \"Core\".", InfoType.INFO);
         return modules;
     }
 
@@ -96,7 +96,7 @@ public class ModuleManager
             e.printStackTrace();
         }
 
-        PrintUtils.sendMessage("Gathered " + modules.size() + " module(s) of family \"" + extmodule.getModuleFamilyName() + "\"!", InfoType.INFO);
+        PrintUtils.sendMessage("Gathered " + modules.size() + " module(s) of family \"" + extmodule.getModuleFamilyName() + "\".", InfoType.INFO);
         return modules;
     }
 
