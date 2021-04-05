@@ -91,7 +91,17 @@ public class ZenithCore extends JavaPlugin
         int delta = modules.size();
         try {
             modules.addAll(loadModulesFromFile());
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (IOException e) { 
+            e.printStackTrace(); 
+        }
+
+        // Print potential naming conflicts
+        modules.forEach(module1 -> {
+            modules.forEach(module2 -> {
+                if (module1 != module2 && module1.getName().equals(module2.getName()))
+                    PrintUtils.sendMessage("Potential conflict: Module " + module1.getClass().getName() + " has same name as module " + module2.getClass().getName() + ".", InfoType.ERROR);
+            });
+        });
 
         PrintUtils.sendMessage("Found (" + (modules.size() - delta) + ") external modules.", InfoType.INFO);
 

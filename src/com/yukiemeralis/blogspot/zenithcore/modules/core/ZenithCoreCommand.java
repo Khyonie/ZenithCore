@@ -66,10 +66,10 @@ public class ZenithCoreCommand extends ZenithCommand
                                 PrintUtils.sendTextComponent((Player) sender, 
                                     TextComponentBuilder.regularText("§8[§dz§8] "),
                                     TextComponentBuilder.setHoverText(
-                                        TextComponentBuilder.clickEvent(ClickEvent.Action.SUGGEST_COMMAND, "§7/" + command.getName(), "/" + command.getName()), 
+                                        TextComponentBuilder.clickEvent(ClickEvent.Action.SUGGEST_COMMAND, "§7/§b" + command.getName(), "/" + command.getName()), 
                                         "§aClick here to autofill command!"  
                                     ),
-                                    TextComponentBuilder.regularText("§7 - " + desc)
+                                    TextComponentBuilder.regularText("§3 - " + desc)
                                 );
                             } else {
                                 PrintUtils.sendMessage(sender, "/" + command.getName() + " - " + desc);
@@ -80,10 +80,10 @@ public class ZenithCoreCommand extends ZenithCommand
                                 PrintUtils.sendTextComponent((Player) sender, 
                                     TextComponentBuilder.regularText("§8[§dz§8] "),
                                     TextComponentBuilder.setHoverText(
-                                        TextComponentBuilder.clickEvent(ClickEvent.Action.SUGGEST_COMMAND, "§7/" + command.getName() + " " + name, "/" + command.getName() + " " + name), 
+                                        TextComponentBuilder.clickEvent(ClickEvent.Action.SUGGEST_COMMAND, "§7/§b" + command.getName() + " " + name, "/" + command.getName() + " " + name), 
                                         "§aClick here to autofill command!"  
                                     ),
-                                    TextComponentBuilder.regularText("§7 - " + desc)
+                                    TextComponentBuilder.regularText("§3 - " + desc)
                                 );
                             } else {
                                 PrintUtils.sendMessage(sender, "/" + command.getName() + " " + name + " - " + desc);

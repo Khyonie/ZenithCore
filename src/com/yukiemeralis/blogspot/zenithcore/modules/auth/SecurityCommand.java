@@ -3,7 +3,10 @@ package com.yukiemeralis.blogspot.zenithcore.modules.auth;
 import java.util.Arrays;
 
 import com.yukiemeralis.blogspot.zenithcore.command.ZenithCommand;
+import com.yukiemeralis.blogspot.zenithcore.modules.auth.PermissionManager.PermissionResult;
 import com.yukiemeralis.blogspot.zenithcore.modules.auth.SecurePlayerAccount.AccountType;
+import com.yukiemeralis.blogspot.zenithcore.modules.core.ZenithCoreModule;
+import com.yukiemeralis.blogspot.zenithcore.utils.InfoType;
 import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
 
 import org.bukkit.command.CommandSender;
@@ -20,6 +23,7 @@ public class SecurityCommand extends ZenithCommand
         linkCommandDescription("new <user | admin | superadmin> <username> <password>", "Create a new account.");
         linkCommandDescription("sudo <password> <command...>", "Run a command as console user.");
         linkCommandDescription("requests <list | approve | reject> <username>", "Perform account request administration.");
+        linkCommandDescription("autologin", "Toggles automatic secure account login on server join.");
     }
 
     @Override
@@ -82,7 +86,7 @@ public class SecurityCommand extends ZenithCommand
 
                 if (getLoggedInAccount(sender) == null)
                 {
-                    PrintUtils.sendMessage("ERROR: You are not logged in to an account.");
+                    PrintUtils.sendMessage(sender, "ERROR: You are not logged in to an account.");
                     return true;
                 }
 
@@ -112,7 +116,7 @@ public class SecurityCommand extends ZenithCommand
 
                 account = new SecurePlayerAccount(args[2], args[3], AccountType.valueOf(args[1].toUpperCase()));
 
-                if (AccountType.valueOf(args[1]).equals(AccountType.ADMIN) || AccountType.valueOf(args[1]).equals(AccountType.SUPERADMIN))
+                if (AccountType.valueOf(args[1].toUpperCase()).equals(AccountType.ADMIN) || AccountType.valueOf(args[1].toUpperCase()).equals(AccountType.SUPERADMIN))
                 {
                     SecurityModule.getAccountRequests().add(new AccountRequest((Player) sender, account));
                     PrintUtils.sendMessage(sender, "Success! New admin/superadmin account \"" + account.getUsername() + "\" has been submitted for approval.");
@@ -126,16 +130,19 @@ public class SecurityCommand extends ZenithCommand
             case "requests":
                 // No authentication
 
-                if (getLoggedInAccount(sender) == null)
+                switch (PermissionManager.isAuthorized(sender, AccountType.ADMIN))
                 {
+                    case ACCEPTED:
+                        break;
+                    case REJECTED_NO_ACCT:
                     PrintUtils.sendMessage(sender, "ERROR: This command requires authentication. Please log in.");
-                    return true;
-                }
-
-                if (!getLoggedInAccount(sender).getType().equals(AccountType.SUPERADMIN))
-                {
-                    PrintUtils.sendMessage(sender, "ERROR: A higher level of permission to perform this command.");
-                    return true;
+                        return true;
+                    case REJECTED_NO_AUTH:
+                        PrintUtils.sendMessage(sender, "ERROR: A higher level of permission to perform this command.");
+                        return true;
+                    default:
+                        PrintUtils.sendMessage(sender, "ERROR: An unknown error occured. Please try again later.");
+                        return true;
                 }
 
                 // Authenticated
@@ -173,6 +180,33 @@ public class SecurityCommand extends ZenithCommand
                     default:
                         PrintUtils.sendMessage(sender, "ERROR: Usage: /requests <list | approve | reject> <username>");
                         return true;
+                }
+                return true;
+            case "autologin":
+                if (sender instanceof ConsoleCommandSender)
+                {
+                    PrintUtils.sendMessage("ERROR: Console user cannot auto-login.", InfoType.ERROR);
+                    return true;
+                }
+
+                if (PermissionManager.isAuthorized(sender, AccountType.ADMIN).equals(PermissionResult.REJECTED_NO_ACCT))
+                {
+                    PrintUtils.sendMessage(sender, "ERROR: This command requires authentication. Please log in.");
+                    return true;
+                }
+
+                if (!ZenithCoreModule.getAccount((Player) sender).getAutoLogin())
+                {
+                    ZenithCoreModule.getAccount((Player) sender).setAutoLogin(SecurityModule.getLoggedInAccount((Player) sender).getUsername());
+                    PrintUtils.sendMessage(sender, "Success! Enabled auto-login.");
+
+                    if (PermissionManager.isAuthorized(sender, AccountType.ADMIN).value())
+                    {
+                        PrintUtils.sendMessage(sender, "WARN: This account is an admin or a superadmin, auto-login is discouraged.");
+                    }
+                } else {
+                    ZenithCoreModule.getAccount((Player) sender).disableAutoLogin();
+                    PrintUtils.sendMessage(sender, "Success! Disabled auto-login.");
                 }
                 return true;
             default:

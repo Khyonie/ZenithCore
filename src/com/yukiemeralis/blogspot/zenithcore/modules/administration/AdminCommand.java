@@ -5,6 +5,9 @@ import java.util.List;
 
 import com.yukiemeralis.blogspot.zenithcore.ZenithCore;
 import com.yukiemeralis.blogspot.zenithcore.command.ZenithCommand;
+import com.yukiemeralis.blogspot.zenithcore.modules.auth.PermissionManager;
+import com.yukiemeralis.blogspot.zenithcore.modules.auth.SecurePlayerAccount.AccountType;
+import com.yukiemeralis.blogspot.zenithcore.utils.InfoType;
 import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
 
 import org.bukkit.Bukkit;
@@ -50,11 +53,31 @@ public class AdminCommand extends ZenithCommand
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) 
     {
+        // No authentication
+
         if (args.length == 0)
         {
             PrintUtils.sendMessage(sender, "ZenithAdministration module v" + ZenithCore.getModuleByName("ZenithAdmin").getVersion() + ".");
             return true;
         }
+
+        switch (PermissionManager.isAuthorized(sender, AccountType.ADMIN).name())
+        {
+            case "REJECTED_NO_AUTH":
+                PrintUtils.sendMessage(sender, "ERROR: A higher level of permission to perform this command.");
+                return true;
+            case "REJECTED_NO_ACCT":
+                PrintUtils.sendMessage(sender, "ERROR: This command requires authentication. Please log in.");
+                return true;
+            case "REJECTED_UNKNOWN":
+                PrintUtils.sendMessage(sender, "ERROR: An unknown error occurred. Instance has been logged.");
+                PrintUtils.sendMessage("ERROR: An unknown error occurred while user " + sender.getName() + " attempted to perform the above command.", InfoType.ERROR);
+                return true;
+            default:
+                break;
+        }
+
+        // Authorized
 
         switch (args[0])
         {

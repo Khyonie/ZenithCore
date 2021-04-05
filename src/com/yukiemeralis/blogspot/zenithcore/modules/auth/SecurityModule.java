@@ -84,6 +84,11 @@ public class SecurityModule extends ZenithModule
         logged_in_accounts.remove(player);
     }
 
+    public static boolean isLoggedIn(Player player)
+    {
+        return logged_in_accounts.containsKey(player);
+    }
+
     public static boolean isAuthenticated(Player player)
     {
         return logged_in_accounts.containsKey(player);
