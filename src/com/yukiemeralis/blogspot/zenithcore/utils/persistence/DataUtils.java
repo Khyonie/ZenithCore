@@ -1,8 +1,11 @@
 package com.yukiemeralis.blogspot.zenithcore.utils.persistence;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.UUID;
 
+import com.google.common.io.Files;
 import com.yukiemeralis.blogspot.zenithcore.ZenithCore;
 
 import org.bukkit.NamespacedKey;
@@ -63,6 +66,34 @@ public class DataUtils
         } else {
             return null;
         }
+    }
+
+    public static File moveToLostAndFound(File file)
+    {
+        // Find an adequate name
+        final String name = file.getName();
+        String nameBuffer = name + "0";
+        
+        File lostnfound = new File(JsonUtils.basepath + "lostandfound/");
+        
+        if (!lostnfound.exists())
+            lostnfound.mkdirs();
+
+        // Make sure we don't overwrite existing files
+        int value = 0;
+        while (new File(JsonUtils.basepath + "lostandfound/" + nameBuffer).exists())
+        {
+            value++;
+            nameBuffer = name + value;
+        }
+
+        try {
+            Files.copy(file, new File(JsonUtils.basepath + "lostandfound/" + nameBuffer));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new File(JsonUtils.basepath + "lostandfound/" + nameBuffer);
     }
 
     /**

@@ -18,11 +18,7 @@ public class ZenithListener implements Listener
     {
         PrintUtils.sendMessage(event.getPlayer(), "Welcome " + event.getPlayer().getDisplayName() + "! This server is running ZenithCore " + VersionCtrl.getVersion() + ".");
 
-        // Check accounts
-        if (ZenithCoreModule.getAccount(event.getPlayer()) == null)
-        {
-            ZenithCoreModule.createAccount(event.getPlayer());
-        }
+        ZenithCoreModule.getAccount(event.getPlayer());
 
         // Secure player account auto-login
         if (ZenithCoreModule.getAccount(event.getPlayer()).getAutoLogin())
@@ -43,6 +39,8 @@ public class ZenithListener implements Listener
         if (SecurityModule.isLoggedIn(event.getPlayer()))
             SecurityModule.logoutAccount(event.getPlayer());
 
-        JsonUtils.toJsonFile(JsonUtils.basepath + "RegularUserAccounts.json", ZenithCoreModule.getAllAccounts());
+        JsonUtils.toJsonFile(JsonUtils.basepath + "accounts/" + event.getPlayer().getUniqueId().toString() + ".json", ZenithCoreModule.getAccount(event.getPlayer()));
+
+        ZenithCoreModule.getAllAccounts().remove(event.getPlayer());
     }
 }

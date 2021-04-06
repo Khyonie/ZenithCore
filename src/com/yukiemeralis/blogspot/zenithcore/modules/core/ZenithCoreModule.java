@@ -1,18 +1,23 @@
 package com.yukiemeralis.blogspot.zenithcore.modules.core;
 
+import java.io.File;
 import java.util.HashMap;
 
 import com.yukiemeralis.blogspot.zenithcore.ZenithModule;
 import com.yukiemeralis.blogspot.zenithcore.modules.core.listeners.TabCompleteListener;
 import com.yukiemeralis.blogspot.zenithcore.modules.core.listeners.ZenithListener;
+import com.yukiemeralis.blogspot.zenithcore.utils.InfoType;
+import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
 import com.yukiemeralis.blogspot.zenithcore.utils.VersionCtrl;
+import com.yukiemeralis.blogspot.zenithcore.utils.persistence.DataUtils;
+import com.yukiemeralis.blogspot.zenithcore.utils.persistence.JsonUtils;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class ZenithCoreModule extends ZenithModule
 {
-    private static HashMap<String, PlayerAccount> accounts = new HashMap<>();
+    private static HashMap<Player, PlayerAccount> accounts = new HashMap<>();
 
     public ZenithCoreModule() 
     {
@@ -30,14 +35,8 @@ public class ZenithCoreModule extends ZenithModule
     @Override
     public void onEnable() 
     {
-        /**
-        if (!(new File(JsonUtils.basepath + "RegularUserAccounts.json").exists()))
-        {
-            JsonUtils.toJsonFile(JsonUtils.basepath + "RegularUserAccounts.json", new HashMap<>());
-        }
-
-        accounts = (HashMap<String, PlayerAccount>) JsonUtils.fromJsonFile(JsonUtils.basepath + "RegularUserAccounts.json", HashMap.class);
-        */
+        if (!(new File(JsonUtils.basepath + "accounts/").exists()))
+            new File(JsonUtils.basepath + "accounts/").mkdirs();
     }
 
     @Override
@@ -46,18 +45,43 @@ public class ZenithCoreModule extends ZenithModule
 
     }
 
-    public static HashMap<String, PlayerAccount> getAllAccounts()
+    public static HashMap<Player, PlayerAccount> getAllAccounts()
     {
         return accounts;
     }
     
     public static PlayerAccount getAccount(Player player)
     {
-        return accounts.get(player.getUniqueId().toString());
+        if (accounts.containsKey(player))
+            return accounts.get(player);
+
+        PlayerAccount account;
+
+        File account_file = new File(JsonUtils.basepath + "accounts/" + player.getUniqueId().toString() + ".json");
+
+        if (account_file.exists())
+        {
+            account = (PlayerAccount) JsonUtils.fromJsonFile(JsonUtils.basepath + "accounts/" + player.getUniqueId().toString() + ".json", PlayerAccount.class);
+
+            if (account == null)
+            {
+                PrintUtils.sendMessage("ERROR: Regular user account for user " + player.getDisplayName() + " is corrupt!", InfoType.ERROR);
+                PrintUtils.sendMessage("A backup of the corrupt file has been saved to " + DataUtils.moveToLostAndFound(account_file).getAbsolutePath() + ".", InfoType.ERROR);
+
+                account = new PlayerAccount(player);
+            }
+
+            accounts.put(player, account);
+            return account;
+        }
+
+        account = new PlayerAccount(player);
+        accounts.put(player, account);
+        return account;
     }
 
     public static void createAccount(Player player)
     {
-        accounts.put(player.getUniqueId().toString(), new PlayerAccount(player));
+        accounts.put(player, new PlayerAccount(player));
     }
 }

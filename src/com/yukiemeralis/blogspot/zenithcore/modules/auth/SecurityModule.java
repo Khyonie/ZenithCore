@@ -10,6 +10,7 @@ import com.yukiemeralis.blogspot.zenithcore.ZenithCore;
 import com.yukiemeralis.blogspot.zenithcore.ZenithModule;
 import com.yukiemeralis.blogspot.zenithcore.utils.InfoType;
 import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
+import com.yukiemeralis.blogspot.zenithcore.utils.persistence.DataUtils;
 import com.yukiemeralis.blogspot.zenithcore.utils.persistence.JsonUtils;
 
 import org.bukkit.Material;
@@ -47,6 +48,8 @@ public class SecurityModule extends ZenithModule
         if (account_list == null)
         {
             PrintUtils.sendMessage("ERROR: User account list is corrupt! Continuing with a fresh instance...", InfoType.ERROR);
+            File f = new File(JsonUtils.basepath + "UserAccounts.json");
+            PrintUtils.sendMessage("A backup of the corrupt file has been saved to " + DataUtils.moveToLostAndFound(f).getAbsolutePath() + ".", InfoType.ERROR);
             account_list = new AccountManager();
             account_list.getAccounts().put("console", new SecurePlayerAccount());
         }

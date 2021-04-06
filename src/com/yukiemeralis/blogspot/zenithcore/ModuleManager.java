@@ -54,52 +54,6 @@ public class ModuleManager
         return modules;
     }
 
-    /**
-     * Gather a list of zenith modules from an external .jar file.<p>
-     * Zenith module packages must start with "com" or "net".
-     * @param extmodule
-     * @param jarFileLocation
-     * @param expectedPackage
-     * @deprecated
-     * @return
-     */
-    public static List<ZenithModule> gatherModulesFromLocation(ZenithExternalModule extmodule, String jarFileLocation, String expectedPackage)
-    {
-        List<ZenithModule> modules = new ArrayList<>();
-
-        try {
-            JarFile jarFile = new JarFile(jarFileLocation);
-
-            JarEntry entry = null;
-            String packageName, className;
-            Enumeration<JarEntry> entries = jarFile.entries();
-            while (entries.hasMoreElements())
-            {
-                entry = entries.nextElement();
-
-                if (entry.getName().startsWith("com") || entry.getName().startsWith("net"))
-                {
-                    className = pullClassName(entry.getName());
-                    packageName = pullPackageName(entry.getName(), className);
-
-                    // Filter results
-                    if (packageName.contains(expectedPackage) && className.endsWith("Module"))
-                    {
-                        ZenithModule module = (ZenithModule) DataUtils.fromClassName(packageName, className);
-                        modules.add(module);
-                    }
-                }
-            }
-
-            jarFile.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        PrintUtils.sendMessage("Gathered " + modules.size() + " module(s) of family \"" + extmodule.getModuleFamilyName() + "\".", InfoType.INFO);
-        return modules;
-    }
-
     private static String pullClassName(String entryName)
     {
         String className = entryName.split("/")[entryName.split("/").length-1]

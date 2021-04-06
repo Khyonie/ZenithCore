@@ -12,6 +12,7 @@ import com.yukiemeralis.blogspot.zenithcore.utils.ModuleClassLoader;
 import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
 import com.yukiemeralis.blogspot.zenithcore.utils.VersionCtrl;
 import com.yukiemeralis.blogspot.zenithcore.utils.http.ProfileManager;
+import com.yukiemeralis.blogspot.zenithcore.utils.persistence.DataUtils;
 import com.yukiemeralis.blogspot.zenithcore.utils.persistence.JsonUtils;
 
 import org.bukkit.event.Listener;
@@ -24,7 +25,6 @@ public class ZenithCore extends JavaPlugin
     private static ArrayList<ZenithCommand> commands = new ArrayList<>();
     private static ArrayList<Listener> events = new ArrayList<>();
     private static ArrayList<ZenithModule> modules = new ArrayList<>();
-    private static ArrayList<ZenithExternalModule> externalModules = new ArrayList<>();
 
     private static ProfileManager profileManager;
     private static ZenithOptions zenithOptions;
@@ -56,6 +56,8 @@ public class ZenithCore extends JavaPlugin
             PrintUtils.sendMessage("Loaded (" + profileManager.getAllProfiles().size() + ") profile(s) from cache.", InfoType.INFO);
         } catch (NullPointerException error) {
             PrintUtils.sendMessage("ERROR: User profile cache is corrupt! Continuing with a fresh instance...", InfoType.ERROR);
+            File f = new File(JsonUtils.basepath + "skinprofiles.json");
+            PrintUtils.sendMessage("A backup of the corrupt file has been saved to " + DataUtils.moveToLostAndFound(f).getAbsolutePath() + ".", InfoType.ERROR);
             profileManager = new ProfileManager();
         }
 
@@ -70,6 +72,10 @@ public class ZenithCore extends JavaPlugin
         if (zenithOptions == null)
         {
             PrintUtils.sendMessage("ERROR: Settings file is corrupt! Continuing with a fresh instance...", InfoType.ERROR);
+
+            File f = new File(JsonUtils.basepath + "ZenithOptions.json");
+            PrintUtils.sendMessage("A backup of the corrupt file has been saved to " + DataUtils.moveToLostAndFound(f).getAbsolutePath() + ".", InfoType.ERROR);
+
             zenithOptions = new ZenithOptions();
         }
 
@@ -99,7 +105,7 @@ public class ZenithCore extends JavaPlugin
         modules.forEach(module1 -> {
             modules.forEach(module2 -> {
                 if (module1 != module2 && module1.getName().equals(module2.getName()))
-                    PrintUtils.sendMessage("Potential conflict: Module " + module1.getClass().getName() + " has same name as module " + module2.getClass().getName() + ".", InfoType.ERROR);
+                    PrintUtils.sendMessage("Potential conflict: Module \"" + module1.getClass().getName() + "\" has same name as module \"" + module2.getClass().getName() + "\"!", InfoType.ERROR);
             });
         });
 
@@ -201,12 +207,6 @@ public class ZenithCore extends JavaPlugin
         return null;
     }
 
-    public static void loadAndRegisterModule(ZenithModule module)
-    {
-        commands.addAll(module.getCommands());
-        events.addAll(module.getListeners());
-    }
-
     public static ZenithOptions getSettings()
     {
         return zenithOptions;
@@ -220,10 +220,5 @@ public class ZenithCore extends JavaPlugin
         events.addAll(module.getListeners());
 
         module.onEnable();
-    }
-
-    public static void addExternalModule(ZenithExternalModule module)
-    {
-        externalModules.add(module);
     }
 }
