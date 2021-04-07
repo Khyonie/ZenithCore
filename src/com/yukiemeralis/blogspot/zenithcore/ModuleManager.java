@@ -15,36 +15,41 @@ import com.yukiemeralis.blogspot.zenithcore.utils.persistence.DataUtils;
 public class ModuleManager 
 {
     /**
-     * Gather modules from com.yukiemeralis.blogspot.zenithcore.modules.
+     * Gather internal modules
      */
     static List<ZenithModule> gatherModules()
     {
         List<ZenithModule> modules = new ArrayList<>();
 
         try {
+            // Open the .jar resource
             JarFile jarFile = new JarFile("./plugins/ZenithCore-" + VersionCtrl.getVersion() + ".jar");
 
             JarEntry entry = null;
             String packageName, className;
             Enumeration<JarEntry> entries = jarFile.entries();
+
+            // Go over every file inside the .jar
             while (entries.hasMoreElements())
             {
                 entry = entries.nextElement();
 
-                if (entry.getName().startsWith("com"))
-                {
-                    className = pullClassName(entry.getName());
-                    packageName = pullPackageName(entry.getName(), className);
+                className = pullClassName(entry.getName());
+                packageName = pullPackageName(entry.getName(), className);
 
-                    // Filter results
-                    if (packageName.contains("com.yukiemeralis.blogspot.zenithcore.modules") && className.endsWith("Module") && !className.equals("ZenithModule"))
-                    {
-                        ZenithModule module = (ZenithModule) DataUtils.fromClassName(packageName, className);
-                        modules.add(module);
-                    }
-                }
+                // Filter non-class files, directories, the base ZenithModule class, or just any other random things we don't want to instantiate
+                if (!entry.getName().endsWith(".class") || 
+                    entry.isDirectory() || 
+                    className.equals("ZenithModule") || 
+                    !ZenithModule.class.isAssignableFrom(DataUtils.getClassFrom(packageName, className))
+                )
+                    continue;
+
+                // Instantiate the class and add it as a module
+                modules.add((ZenithModule) DataUtils.fromClassName(packageName, className));
             }
 
+            // Finish and close the .jar resource
             jarFile.close();
         } catch (IOException e) {
             e.printStackTrace();

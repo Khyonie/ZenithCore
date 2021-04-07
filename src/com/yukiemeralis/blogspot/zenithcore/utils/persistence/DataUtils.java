@@ -33,6 +33,16 @@ public class DataUtils
         }
     }
 
+    public static Class<?> getClassFrom(String package_, String className)
+    {
+        try {
+            return Class.forName(package_ + "." + className);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static void saveToNamespacedKey(ItemStack target, String key, int offset, String value)
     {
         NamespacedKey nskey = new NamespacedKey((Plugin) ZenithCore.getInstance(), (key + offset));

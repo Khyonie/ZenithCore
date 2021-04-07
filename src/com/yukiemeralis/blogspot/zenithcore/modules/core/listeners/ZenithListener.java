@@ -1,5 +1,6 @@
 package com.yukiemeralis.blogspot.zenithcore.modules.core.listeners;
 
+import com.yukiemeralis.blogspot.zenithcore.modules.auth.SecurePlayerAccount;
 import com.yukiemeralis.blogspot.zenithcore.modules.auth.SecurityModule;
 import com.yukiemeralis.blogspot.zenithcore.modules.core.ZenithCoreModule;
 import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
@@ -23,12 +24,17 @@ public class ZenithListener implements Listener
         // Secure player account auto-login
         if (ZenithCoreModule.getAccount(event.getPlayer()).getAutoLogin())
         {
-            SecurityModule.loginAccount(
-                event.getPlayer(), SecurityModule.getAccount(
-                    ZenithCoreModule.getAccount(event.getPlayer()).getAutoLoginUsername()
-                )
-            );
+            SecurePlayerAccount sec_account = SecurityModule.getAccount(ZenithCoreModule.getAccount(event.getPlayer()).getAutoLoginUsername());
 
+            // In case the secure player account list gets corrupt or something to that effect
+            if (sec_account == null)
+            {
+                // Disable auto-login
+                ZenithCoreModule.getAccount(event.getPlayer()).disableAutoLogin();
+                return;
+            }
+
+            SecurityModule.loginAccount(event.getPlayer(), sec_account);
             PrintUtils.sendMessage(event.getPlayer(), "Auto-logged in as user \"" + SecurityModule.getLoggedInAccount(event.getPlayer()).getUsername() + "\".");
         }
     }
