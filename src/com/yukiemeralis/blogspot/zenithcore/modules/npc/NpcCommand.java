@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.yukiemeralis.blogspot.zenithcore.ZenithCore;
 import com.yukiemeralis.blogspot.zenithcore.command.ZenithCommand;
+import com.yukiemeralis.blogspot.zenithcore.modules.auth.SecurePlayerAccount.AccountType;
 import com.yukiemeralis.blogspot.zenithcore.modules.npc.base.ZenithNPC;
 import com.yukiemeralis.blogspot.zenithcore.utils.PrintUtils;
 import com.yukiemeralis.blogspot.zenithcore.utils.http.HttpManager;
@@ -20,13 +21,13 @@ public class NpcCommand extends ZenithCommand
     {
         super("npc");
 
-        linkCommandDescription("", "Display information about this module.");
-        linkCommandDescription("create <name> <profilename>", "Create a new NPC with a name. Names must be unique.");
-        linkCommandDescription("spawn <name>", "Spawn a loaded NPC into the world where you are looking.");
-        linkCommandDescription("setbehavior <name>", "Set an NPC's behaviour and pathfinding.");
-        linkCommandDescription("info <name>", "Display information about an NPC.");
-        linkCommandDescription("loadprofile <username>", "Load and cache a user's profile.");
-        linkCommandDescription("delprofile <username>", "Delete a user's profile from cache. Removes all profile association with NPCs with the given profile.");
+        linkCommandDescription("", "Display information about this module.", AccountType.ADMIN);
+        linkCommandDescription("create <name> <profilename>", "Create a new NPC with a name. Names must be unique.", AccountType.ADMIN);
+        linkCommandDescription("spawn <name>", "Spawn a loaded NPC into the world where you are looking.", AccountType.ADMIN);
+        linkCommandDescription("setbehavior <name>", "Set an NPC's behaviour and pathfinding.", AccountType.ADMIN);
+        linkCommandDescription("info <name>", "Display information about an NPC.", AccountType.ADMIN);
+        linkCommandDescription("loadprofile <username>", "Load and cache a user's profile.", AccountType.ADMIN);
+        linkCommandDescription("delprofile <username>", "Delete a user's profile from cache. Removes all profile association with NPCs with the given profile.", AccountType.ADMIN);
     }
 
     @Override
@@ -38,6 +39,9 @@ public class NpcCommand extends ZenithCommand
             PrintUtils.sendMessage(sender, "ZenithNPC manager command. | " + NpcManager.getNpcs().size() + " available NPCs, " + ZenithCore.getProfileManager().getAllProfiles().size() + " available user profiles.");
             return true;
         }
+
+        if (!checkAuthorization(sender, AccountType.ADMIN))
+            return true;
 
         String subcmd = args[0];
 

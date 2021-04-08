@@ -21,8 +21,8 @@ public class SecurityCommand extends ZenithCommand
 
         linkCommandDescription("login <username> <password>", "Attempt to log in to a secure account.");
         linkCommandDescription("new <user | admin | superadmin> <username> <password>", "Create a new account.");
-        linkCommandDescription("sudo <password> <command...>", "Run a command as console user.");
-        linkCommandDescription("requests <list | approve | reject> <username>", "Perform account request administration.");
+        linkCommandDescription("sudo <password> <command...>", "Run a command as console user.", AccountType.ADMIN);
+        linkCommandDescription("requests <list | approve | reject> <username>", "Perform account request administration.", AccountType.ADMIN);
         linkCommandDescription("autologin", "Toggles automatic secure account login on server join.");
     }
 
@@ -130,20 +130,8 @@ public class SecurityCommand extends ZenithCommand
             case "requests":
                 // No authentication
 
-                switch (PermissionManager.isAuthorized(sender, AccountType.ADMIN))
-                {
-                    case ACCEPTED:
-                        break;
-                    case REJECTED_NO_ACCT:
-                    PrintUtils.sendMessage(sender, "ERROR: This command requires authentication. Please log in.");
-                        return true;
-                    case REJECTED_NO_AUTH:
-                        PrintUtils.sendMessage(sender, "ERROR: A higher level of permission to perform this command.");
-                        return true;
-                    default:
-                        PrintUtils.sendMessage(sender, "ERROR: An unknown error occured. Please try again later.");
-                        return true;
-                }
+                if (!checkAuthorization(sender, AccountType.ADMIN))
+                    return true;
 
                 // Authenticated
 

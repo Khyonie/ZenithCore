@@ -3,6 +3,7 @@ package com.yukiemeralis.blogspot.zenithcore.modules.effects.base;
 import com.yukiemeralis.blogspot.zenithcore.modules.effects.ZenithEffect;
 
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 
 public class StunEffect extends ZenithEffect
@@ -23,6 +24,6 @@ public class StunEffect extends ZenithEffect
     @Override
     public void run() 
     {
-        this.target.teleport(loc);
+        ((CraftEntity) target).getHandle().setLocation(loc.getX(), loc.getY(), loc.getZ(), target.getLocation().getPitch(), target.getLocation().getYaw());
     }
 }

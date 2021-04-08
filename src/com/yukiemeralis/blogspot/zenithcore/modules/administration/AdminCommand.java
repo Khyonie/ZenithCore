@@ -35,19 +35,19 @@ public class AdminCommand extends ZenithCommand
         super("zenadmin");
 
         linkCommandDescription("", "Display information about this module.");
-        linkCommandDescription("invedit <player>", "Edit a player's inventory.");
-        linkCommandDescription("ecedit <player>", "Edit a player's ender chest.");
-        linkCommandDescription("tpspawn <player>", "Teleport a player to their spawnpoint.");
-        linkCommandDescription("getloc <player>", "Get the current location of a player.");
-        linkCommandDescription("showraid", "Highlight all raid entities for 10 minutes.");
-        linkCommandDescription("god <player> <ticks>", "Give a player invincibility for <ticks> ticks.");
+        linkCommandDescription("invedit <player>", "Edit a player's inventory.", AccountType.ADMIN);
+        linkCommandDescription("ecedit <player>", "Edit a player's ender chest.", AccountType.ADMIN);
+        linkCommandDescription("tpspawn <player>", "Teleport a player to their spawnpoint.", AccountType.ADMIN);
+        linkCommandDescription("getloc <player>", "Get the current location of a player.", AccountType.ADMIN);
+        linkCommandDescription("showraid", "Highlight all raid entities for 10 minutes.", AccountType.ADMIN);
+        linkCommandDescription("god <player> <ticks>", "Give a player invincibility for <ticks> ticks.", AccountType.ADMIN);
 
-        linkCommandDescription("zap <player>", "Strike a player with lightning.");
-        linkCommandDescription("launch <player> <velocity>", "Launch a player into the air.");
-        linkCommandDescription("smash <player> <velocity>", "Launch a player downwards.");
-        linkCommandDescription("ignite <player> <ticks>", "Set a player on fire.");
-        linkCommandDescription("void <player>", "Banish a player to the void. Works well with /zenadmin god.");
-        linkCommandDescription("megazombie <player> <ticks>", "Send a powerful, invincible zombie to attack a player. Despawns after a period of time.");
+        linkCommandDescription("zap <player>", "Strike a player with lightning.", AccountType.ADMIN);
+        linkCommandDescription("launch <player> <velocity>", "Launch a player into the air.", AccountType.ADMIN);
+        linkCommandDescription("smash <player> <velocity>", "Launch a player downwards.", AccountType.ADMIN);
+        linkCommandDescription("ignite <player> <ticks>", "Set a player on fire.", AccountType.ADMIN);
+        linkCommandDescription("void <player>", "Banish a player to the void. Works well with /zenadmin god.", AccountType.ADMIN);
+        linkCommandDescription("megazombie <player> <ticks>", "Send a powerful, invincible zombie to attack a player. Despawns after a period of time.", AccountType.ADMIN);
     }
 
     @Override
